@@ -1,8 +1,9 @@
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.utils import timezone
 
-MAX_NAME_LENGTH = 256
+from .constants import MAX_DISPLAY_LENGTH, MAX_NAME_LENGTH
+from .querysets import PostQuerySet
+
 User = get_user_model()
 
 
@@ -35,7 +36,7 @@ class Category(PublishedModel):
         verbose_name_plural = 'Категории'
 
     def __str__(self):
-        return self.title
+        return self.title[:MAX_DISPLAY_LENGTH]
 
 
 class Location(PublishedModel):
@@ -46,16 +47,7 @@ class Location(PublishedModel):
         verbose_name_plural = 'Местоположения'
 
     def __str__(self):
-        return self.name
-
-
-class PostQuerySet(models.QuerySet):
-    def visible(self):
-        return self.filter(
-            is_published=True,
-            pub_date__lte=timezone.now(),
-            category__is_published=True,
-        ).select_related('author', 'category', 'location')
+        return self.name[:MAX_DISPLAY_LENGTH]
 
 
 class Post(PublishedModel):
@@ -91,6 +83,7 @@ class Post(PublishedModel):
         verbose_name = 'публикация'
         verbose_name_plural = 'Публикации'
         ordering = ('-pub_date', '-pk')
+        default_related_name = 'posts'
 
     def __str__(self):
-        return self.title
+        return self.title[:MAX_DISPLAY_LENGTH]

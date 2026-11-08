@@ -1,8 +1,7 @@
 from django.shortcuts import get_object_or_404, render
 
+from .constants import MAIN_PAGE_POST_LIMIT
 from .models import Category, Post
-
-MAIN_PAGE_POST_LIMIT = 5
 
 
 def index(request):
@@ -19,7 +18,7 @@ def category_posts(request, category_slug):
     category = get_object_or_404(
         Category, slug=category_slug, is_published=True,
     )
-    post_list = Post.objects.visible().filter(category=category)
+    post_list = category.posts.visible()
     return render(request, 'blog/category.html', {
         'category': category,
         'post_list': post_list,
